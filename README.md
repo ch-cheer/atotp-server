@@ -1,5 +1,5 @@
-# This comand-like application is ATOTP-server
-# It generate OTP (ATOTP) codes for autentification
+# This is command-line application is ATOTP-server
+# It generates OTP (ATOTP) codes for autentification
 
 ATOTP is Address-based Time-based One-Time Password algorithm, that add address in secret key.
 Its done as method of security from AiTM atacks and generate OTP codes that passed only for currect service.
