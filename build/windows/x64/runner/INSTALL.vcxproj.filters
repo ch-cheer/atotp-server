@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Maksim Ilich\Project_Dart\atotp-server\build\windows\x64\CMakeFiles\aaac95375942ee0a23f58a5c799c0060\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{037BE6E3-431C-3141-A9B0-AC854CAB01F9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

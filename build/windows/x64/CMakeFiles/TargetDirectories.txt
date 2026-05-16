@@ -1,0 +1,10 @@
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/CMakeFiles/INSTALL.dir
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/CMakeFiles/ALL_BUILD.dir
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/CMakeFiles/ZERO_CHECK.dir
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/flutter/CMakeFiles/flutter_wrapper_plugin.dir
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/flutter/CMakeFiles/flutter_wrapper_app.dir
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/flutter/CMakeFiles/flutter_assemble.dir
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/flutter/CMakeFiles/INSTALL.dir
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/runner/CMakeFiles/atotp_server.dir
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/runner/CMakeFiles/INSTALL.dir
+C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/runner/CMakeFiles/ALL_BUILD.dir

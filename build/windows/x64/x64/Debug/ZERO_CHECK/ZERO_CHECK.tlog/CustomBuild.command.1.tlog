@@ -1,0 +1,10 @@
+^C:\USERS\MAKSIM ILICH\PROJECT_DART\ATOTP-SERVER\BUILD\WINDOWS\X64\CMAKEFILES\E540847177AD6950895E817B36BDC0EF\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" "-SC:/Users/Maksim Ilich/Project_Dart/atotp-server/windows" "-BC:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/Maksim Ilich/Project_Dart/atotp-server/build/windows/x64/atotp_server.slnx"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
