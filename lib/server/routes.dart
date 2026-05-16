@@ -160,6 +160,6 @@ Map<String, dynamic> _processVerify({
     'username': username,
     'valid': valid,
     'remaining_seconds': remaining,
-    'server_code': serverCode, //отладка
+    //'server_code': serverCode, //отладка
   };
 }

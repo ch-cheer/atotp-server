@@ -13,3 +13,16 @@ ATOTP server works on:
 * Windows
 * Linux
 * Maybe MacOS (I'll test it)
+
+====
+
+There 2 methods (routes):
+
+1. Registration (route /register)
+    - Client send username (it will in URL in field "label")
+    - Server send username, secret, otpauthUrl and note "'Server does not store secret. Client must save it securely."
+2. Verify (route verify)
+    - Client send username, secret and code (from autentificator)
+    - Server send username, valid (true or false) and remaining (in seconds)
+
+U can check health of server on route /health
