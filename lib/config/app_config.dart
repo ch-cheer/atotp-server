@@ -1,9 +1,18 @@
 import 'dart:io';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
-  static T _validate<T>(String key, T value, bool Function(T) validator, String message) {
-    if (!validator(value)) {
+  static late final Map<String, String> _config;
+  static bool _initialized = false;
+
+  static void initialize(Map<String, String> configMap) {
+    if (_initialized) return;
+    _config = configMap;
+    _initialized = true;
+  }
+
+  // === Вспомогательный метод валидации ===
+  static T _validate<T>(String key, T? value, bool Function(T) validator, String message) {
+    if (value == null || !validator(value)) {
       stderr.writeln('Invalid config: $key — $message');
       exit(1);
     }
@@ -11,9 +20,7 @@ class AppConfig {
   }
   
   static int get httpPort {
-    final raw = Platform.environment['HTTP_PORT'] 
-         ?? dotenv.env['HTTP_PORT'] 
-         ?? '8080';
+    final raw = _config['HTTP_PORT'] ?? '8080';
     final port = int.tryParse(raw);
     return _validate(
       'HTTP_PORT',
@@ -24,7 +31,7 @@ class AppConfig {
   }
 
   static String get socketPath {
-    final path = dotenv.env['SOCKET_PATH'] ?? '/tmp/atotp.sock';
+    final path = _config['SOCKET_PATH'] ?? '/tmp/atotp.sock';
     return _validate(
       'SOCKET_PATH',
       path,
@@ -34,28 +41,19 @@ class AppConfig {
   }
 
   static bool get enableSocket {
-    final raw = dotenv.env['ENABLE_SOCKET'] ?? 'true';
-    final value = raw.toLowerCase();
+    final raw = (_config['ENABLE_SOCKET'] ?? 'true').toLowerCase();
     return _validate(
       'ENABLE_SOCKET',
-      value,
+      raw,
       (v) => v == 'true' || v == 'false' || v == '1' || v == '0',
       'must be a boolean: true/false/1/0',
-    ) == 'true' || value == '1';
+    ) == 'true' || raw == '1';
   }
 
-  static String get defaultIssuer {
-    final issuer = dotenv.env['DEFAULT_ISSUER'] ?? 'MyApp';
-    return _validate(
-      'DEFAULT_ISSUER',
-      issuer,
-      isValidIssuer,
-      'must be 0–50 characters',
-    );
-  }
+  static String get defaultIssuer => _config['DEFAULT_ISSUER'] ?? 'MyApp';
 
   static String get defaultAlgorithm {
-    final algo = dotenv.env['DEFAULT_ALGORITHM'] ?? 'sha1';
+    final algo = _config['DEFAULT_ALGORITHM'] ?? 'sha1';
     return _validate(
       'DEFAULT_ALGORITHM',
       algo,
@@ -65,7 +63,7 @@ class AppConfig {
   }
 
   static int get defaultDigits {
-    final raw = dotenv.env['DEFAULT_DIGITS'] ?? '6';
+    final raw = _config['DEFAULT_DIGITS'] ?? '6';
     final digits = int.tryParse(raw);
     return _validate(
       'DEFAULT_DIGITS',
@@ -76,7 +74,7 @@ class AppConfig {
   }
 
   static int get defaultPeriod {
-    final raw = dotenv.env['DEFAULT_PERIOD'] ?? '30';
+    final raw = _config['DEFAULT_PERIOD'] ?? '30';
     final period = int.tryParse(raw);
     return _validate(
       'DEFAULT_PERIOD',
@@ -87,7 +85,7 @@ class AppConfig {
   }
 
   static int get defaultAddressOption {
-    final raw = dotenv.env['DEFAULT_ADDRESS_OPTION'] ?? '3';
+    final raw = _config['DEFAULT_ADDRESS_OPTION'] ?? '3';
     final opt = int.tryParse(raw);
     return _validate(
       'DEFAULT_ADDRESS_OPTION',
@@ -98,14 +96,57 @@ class AppConfig {
   }
 
   static String get address {
-    final addr = dotenv.env['ADDRESS'];
+    final addr = _config['ADDRESS'];
     final option = defaultAddressOption;
     return _validate(
       'ADDRESS',
       addr,
-      (a) => a != null && isValidAddress(a, option),
+      (a) => isValidAddress(a, option),
       'must be valid for addressOption=$option (1=IP, 2=URL, 3=IP,URL)',
-    )!.trim();
+    ).trim();
+  }
+
+  static int get secretLength {
+    final raw = _config['SECRET_LENGTH'] ?? '20';
+    final len = int.tryParse(raw);
+    return _validate(
+      'SECRET_LENGTH',
+      len,
+      (l) => l != null && l >= 16 && l <= 32,
+      'must be a number between 16 and 32',
+    )!;
+  }
+  
+  static bool isValidLabel(String label) {
+    final validLabel = label.trim();
+    return validLabel.isNotEmpty && validLabel.length <= 50;
+  }
+
+  static bool isValidIssuer(String issuer) => issuer.trim().length <= 50;
+
+  static String normalizeSecret(String secret) => secret.trim().replaceAll(' ', '').toUpperCase();
+
+  static bool isValidSecret(String secret) {
+    final validSecret = normalizeSecret(secret);
+    final regex = RegExp(r'^[A-Z2-7]+$');
+    return validSecret.isNotEmpty && validSecret.length >= 16 && regex.hasMatch(validSecret);
+  }
+
+  static bool isValidAlgorithm(String algorithm) {
+    final validAlgorithm = algorithm.trim().toLowerCase();
+    return validAlgorithm == 'sha1' || validAlgorithm == 'sha256' || validAlgorithm == 'sha512';
+  }
+
+  static bool isValidDigits(int digits) => digits >= 6 && digits <= 12;
+
+  static bool isValidPeriod(int period) => period == 15 || period == 30 || period == 60;
+
+  static bool isValidAddressOption(int addressOption) => addressOption >= 1 && addressOption <= 3;
+
+  static bool isValidClientCode(String? code) {
+    if (code == null || code.isEmpty) return false;
+    final cleaned = code.trim();
+    return cleaned.length <= 12 && RegExp(r'^\d+$').hasMatch(cleaned);
   }
 
   static bool isValidIpAddress(String ip) {
@@ -135,63 +176,13 @@ class AppConfig {
     if (validAddress.isEmpty) return false;
     
     switch (addressOption) {
-      case 1: // Только IP
-        return isValidIpAddress(validAddress);
-      case 2: // Только URL
-        return isValidUrl(validAddress);
-      case 3: // IP и URL через запятую
+      case 1: return isValidIpAddress(validAddress);
+      case 2: return isValidUrl(validAddress);
+      case 3:
         final parts = validAddress.split(',').map((s) => s.trim()).toList();
         if (parts.length != 2) return false;
         return isValidIpAddress(parts[0]) && isValidUrl(parts[1]);
-      default:
-        return false; // Неизвестный addressOption
+      default: return false;
     }
-  }
-
-  static int get secretLength {
-    final raw = dotenv.env['SECRET_LENGTH'] ?? '20';
-    final len = int.tryParse(raw);
-    return _validate(
-      'SECRET_LENGTH',
-      len,
-      (l) => l != null && l >= 16 && l <= 32,
-      'must be a number between 16 and 32',
-    )!;
-  }
-
-  static bool isValidLabel(String label) {
-    final validLabel = label.trim();
-    return validLabel.isNotEmpty && validLabel.length <= 50;
-  }
-
-  static bool isValidIssuer(String issuer) {
-    return issuer.trim().length <= 50;
-  }
-
-  static String normalizeSecret(String secret) {
-    return secret.trim().replaceAll(' ', '').toUpperCase();
-  }
-
-  static bool isValidSecret(String secret) {
-    final validSecret = normalizeSecret(secret);
-    final regex = RegExp(r'^[A-Z2-7]+$');
-    return validSecret.isNotEmpty && validSecret.length >= 16 && regex.hasMatch(validSecret);
-  }
-
-  static bool isValidAlgorithm(String algorithm) {
-    final validAlgorithm = algorithm.trim().toLowerCase();
-    return validAlgorithm == 'sha1' || validAlgorithm == 'sha256' || validAlgorithm == 'sha512';
-  }
-
-  static bool isValidDigits(int digits) => digits >= 6 && digits <= 12;
-
-  static bool isValidPeriod(int period) => period == 15 || period == 30 || period == 60;
-
-  static bool isValidAddressOption(int addressOption) => addressOption >= 1 && addressOption <= 3;
-
-  static bool isValidClientCode(String? code) {
-    if (code == null || code.isEmpty) return false;
-    final cleaned = code.trim();
-    return cleaned.length <= 12 && RegExp(r'^\d+$').hasMatch(cleaned);
   }
 }

@@ -6,6 +6,7 @@
 .pub/
 test/
 .env
+config.txt
 # IntelliJ related
 *.iml
 *.ipr

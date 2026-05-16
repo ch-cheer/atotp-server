@@ -10,23 +10,15 @@ environment:
   sdk: ^3.11.5
 
 dependencies:
-  flutter:
-    sdk: flutter
   shelf: ^1.4.2
   shelf_router: ^1.1.4
   crypto: ^3.0.7
   base32: ^2.2.0
   args: ^2.7.0
-  flutter_dotenv: ^6.0.1
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^6.0.0
-
-flutter: 
-  assets:
-    - .env
+  lints: ^6.1.0
+  test: ^1.31.1
 
 platforms:
   windows:
