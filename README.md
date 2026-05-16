@@ -12,7 +12,7 @@ Members are:
 ATOTP server works on:
 * Windows
 * Linux
-* Maybe MacOS (I'll test it)
+* MacOS
 
 ====
 
